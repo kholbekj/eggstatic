@@ -4,6 +4,7 @@ function init() {
   const darkModeElement = document.getElementById('dark-mode');
   const storedTheme = localStorage.getItem('theme');
   const browserDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
   if (storedTheme) {
     if (storedTheme == 'dark') {
       darkModeElement.checked = true;
@@ -15,7 +16,10 @@ function init() {
   } else if (browserDarkMode) {
     darkModeElement.checked = true;
     document.querySelector('html').setAttribute('data-theme', 'dark');
+  } else {
+    document.querySelector('html').setAttribute('data-theme', 'light');
   }
+  
   darkModeElement.addEventListener('click', function () {
     toggleDarkMode();
   });
