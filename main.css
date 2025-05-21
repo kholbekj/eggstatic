@@ -32,6 +32,12 @@ html, body {
   line-height: 1.6;
   font-size: 17px;
   background-image: repeating-linear-gradient(-45deg, transparent, transparent 60px, rgba(0,0,0,0.015) 60px, rgba(0,0,0,0.015) 120px);
+  min-height: 100vh;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
 }
 
 [data-theme="dark"] html, body {
@@ -44,12 +50,41 @@ html, body {
   padding: 0 2rem;
 }
 
-header {
-  border-bottom: 2px solid var(--border);
+/* Make main content grow to push footer down */
+main.container {
+  flex: 1 0 auto;
+}
+
+/* Footer styles */
+footer {
+  margin-top: 3rem;
   padding: 1rem 0;
-  margin-bottom: 1.5rem;
+  border-top: 1px solid rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] footer {
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.footer-content {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+  padding: 0.5rem 0;
+}
+
+.footer-content:hover {
+  opacity: 1;
+}
+
+.toggle-wrapper {
+  display: flex;
+  align-items: center;
+  margin-right: 3rem;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -112,55 +147,29 @@ h2::after {
     #ff416c, #ff4b2b, #f7b733, #4ecdc4, #2196f3, transparent);
 }
 
-/* Style for the GitHub link */
-a.contrast {
-  display: inline-block;
-  margin-top: 2rem;
-  background-color: var(--secondary);
-  color: white;
-  padding: 0.6rem 1.2rem;
+/* GitHub link in footer */
+.github-link {
+  color: var(--text);
+  opacity: 0.8;
   text-decoration: none;
-  font-weight: bold;
-  border: none;
-  border-radius: 3px;
-  box-shadow: var(--shadow);
+  font-size: 0.85rem;
   transition: all 0.2s;
-  position: relative;
-  overflow: hidden;
 }
 
-a.contrast::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1), rgba(255,255,255,0));
-  transform: translateX(-100%);
-  transition: transform 0.6s;
+.github-link:hover {
+  color: var(--primary);
+  opacity: 1;
 }
 
-a.contrast:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
-  background-color: var(--primary);
+[data-theme="dark"] .github-link {
+  color: #bbb;
 }
 
-a.contrast:hover::before {
-  transform: translateX(100%);
+[data-theme="dark"] .github-link:hover {
+  color: var(--primary);
 }
 
-[data-theme="dark"] a.contrast {
-  background-color: #d92662;
-  border-color: #555;
-  color: white;
-}
-
-[data-theme="dark"] a.contrast:hover {
-  background-color: var(--primary);
-  border-color: #777;
-}
+/* No longer needed - removed contrast styles */
 
 a {
   color: var(--primary);
@@ -217,15 +226,15 @@ li::marker {
   color: var(--primary);
 }
 
-/* Dark mode toggle */
+/* Dark mode toggle in footer */
 input[type="checkbox"] {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  width: 3.2rem;
-  height: 1.6rem;
+  width: 2.4rem;
+  height: 1.2rem;
   background-color: #e0e0e0;
-  border: 2px solid var(--border);
+  border: 1px solid var(--border);
   border-radius: 1.6rem;
   position: relative;
   cursor: pointer;
@@ -241,32 +250,29 @@ input[type="checkbox"] {
 input[type="checkbox"]::before {
   content: "";
   position: absolute;
-  width: 1rem;
-  height: 1rem;
+  width: 0.8rem;
+  height: 0.8rem;
   border-radius: 50%;
-  top: 0.25rem;
-  left: 0.25rem;
+  top: 0.15rem;
+  left: 0.15rem;
   background-color: var(--border);
   transition: all 0.3s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 input[type="checkbox"]:checked::before {
-  transform: translateX(1.6rem);
+  transform: translateX(1.2rem);
   background-color: var(--primary);
 }
 
 input[type="checkbox"]:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(255, 99, 71, 0.4);
 }
 
 label[for="dark-mode"] {
-  font-weight: bold;
-  font-size: 0.8rem;
-  text-transform: uppercase;
+  font-size: 0.85rem;
   vertical-align: middle;
   transition: color 0.3s;
+  opacity: 0.9;
 }
 
 [data-theme="dark"] label[for="dark-mode"] {

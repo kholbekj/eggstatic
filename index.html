@@ -11,10 +11,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
   </head>
   <body>
-    <header class="container">
-        <input type="checkbox" role="switch" id="dark-mode" aria-label="Dark mode">
-        <label for="dark-mode" aria-hidden="true">Dark Mode</label>
-    </header>
     <main class="container">
       <h1>Kasper Codes!</h1>
       <ul>
@@ -31,8 +27,16 @@
         <li><a href="content/ruby_crash_course.md">2017 - Ruby Crash Course</a></li>
         <li><a href="content/convenience_queries_with_ecto.md">2016 - Convenience Queries with Ecto</a></li>
       </ul>
-      
-      <a href="https://github.com/kholbekj/eggstatic" class="contrast">View on GitHub</a>
     </main>
+    
+    <footer class="container">
+      <div class="footer-content">
+        <div class="toggle-wrapper">
+          <input type="checkbox" role="switch" id="dark-mode" aria-label="Dark mode">
+          <label for="dark-mode" aria-hidden="true">Dark Mode</label>
+        </div>
+        <a href="https://github.com/kholbekj/eggstatic" class="github-link">View on GitHub</a>
+      </div>
+    </footer>
   </body>
 </html>
