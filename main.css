@@ -3,17 +3,18 @@
 :root {
   --background: #f5f5f2;
   --text: #1a1a1a;
-  --primary: #ff6347;
+  --primary: #d42171;
   --secondary: #4e9dad;
   --accent: #ffcb47;
   --border: #333333;
   --shadow: 3px 3px 0px rgba(0, 0, 0, 0.15);
+  --stripe-color: rgba(212, 33, 113, 0.015);
 }
 
 [data-theme="dark"] {
   --background: #1f1f24;
   --text: #f0f0f0;
-  --primary: #ff6347;
+  --primary: #d42171;
   --secondary: #d92662;
   --accent: #a41c4c;
   --border: #555555;
@@ -31,17 +32,17 @@ html, body {
   color: var(--text);
   line-height: 1.6;
   font-size: 17px;
-  background-image: repeating-linear-gradient(-45deg, transparent, transparent 60px, rgba(0,0,0,0.015) 60px, rgba(0,0,0,0.015) 120px);
+  background-image: repeating-linear-gradient(-45deg, transparent, transparent 60px, var(--stripe-color) 60px, var(--stripe-color) 120px);
   min-height: 100vh;
+}
+
+[data-theme="dark"] html, body {
+  background-image: repeating-linear-gradient(-45deg, transparent, transparent 60px, rgba(187, 119, 137, 0.05) 60px, rgba(187, 119, 137, 0.05) 120px);
 }
 
 body {
   display: flex;
   flex-direction: column;
-}
-
-[data-theme="dark"] html, body {
-  background-image: repeating-linear-gradient(-45deg, transparent, transparent 60px, rgba(217, 38, 98, 0.05) 60px, rgba(217, 38, 98, 0.05) 120px);
 }
 
 .container {
@@ -87,6 +88,14 @@ footer {
   margin-right: 3rem;
 }
 
+.footer-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Removed color randomizer styles */
+
 h1, h2, h3, h4, h5, h6 {
   font-family: 'IBM Plex Mono', monospace;
   margin-top: 2rem;
@@ -117,8 +126,13 @@ h1::after {
     #ff416c, #ff4b2b, #f7b733, #4ecdc4, #2196f3, #9c27b0);
 }
 
-[data-theme="dark"] h1 {
-  color: #ff8370;
+[data-theme="dark"] h1, 
+[data-theme="dark"] h2, 
+[data-theme="dark"] h3, 
+[data-theme="dark"] h4, 
+[data-theme="dark"] h5, 
+[data-theme="dark"] h6 {
+  color: var(--primary);
 }
 
 h2 {
@@ -169,7 +183,35 @@ h2::after {
   color: var(--primary);
 }
 
-/* No longer needed - removed contrast styles */
+/* Button style for the main GitHub link */
+a.contrast {
+  display: inline-block;
+  margin-top: 2rem;
+  background-color: var(--secondary);
+  color: white;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  font-weight: bold;
+  border: none;
+  border-radius: 3px;
+  box-shadow: var(--shadow);
+  transition: all 0.2s;
+}
+
+a.contrast:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+  background-color: var(--primary);
+}
+
+[data-theme="dark"] a.contrast {
+  background-color: var(--secondary);
+  color: white;
+}
+
+[data-theme="dark"] a.contrast:hover {
+  background-color: var(--primary);
+}
 
 a {
   color: var(--primary);
@@ -201,11 +243,11 @@ a:hover::after {
 }
 
 [data-theme="dark"] a {
-  color: #ff8370;
+  color: var(--primary);
 }
 
 [data-theme="dark"] a:hover {
-  color: #ff80ab;
+  color: var(--secondary);
 }
 
 [data-theme="dark"] a::after {
@@ -261,6 +303,10 @@ input[type="checkbox"]::before {
 
 input[type="checkbox"]:checked::before {
   transform: translateX(1.2rem);
+  background-color: var(--primary);
+}
+
+[data-theme="dark"] input[type="checkbox"]:checked::before {
   background-color: var(--primary);
 }
 
