@@ -326,41 +326,64 @@ label[for="dark-mode"] {
 }
 
 /* Markdown content styling */
-pre, code {
-  background-color: rgba(0, 0, 0, 0.05);
-  font-family: 'Space Mono', monospace;
+code {
+  background-color: rgba(212, 33, 113, 0.05);
+  font-family: 'IBM Plex Mono', 'Space Mono', monospace;
   padding: 0.2rem 0.4rem;
   border: none;
   border-radius: 3px;
   font-size: 0.9em;
   position: relative;
-}
-
-[data-theme="dark"] pre, [data-theme="dark"] code {
-  background-color: rgba(0, 0, 0, 0.3);
+  color: var(--primary);
 }
 
 pre {
-  padding: 1rem;
+  background-color: rgba(212, 33, 113, 0.03);
+  padding: 1.2rem;
   overflow-x: auto;
   position: relative;
+  border-left: 4px solid var(--primary);
+  border-top: none;
+  box-shadow: none;
+  margin: 1.5rem 0;
+}
+
+pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+[data-theme="dark"] code {
+  background-color: rgba(212, 33, 113, 0.1);
+  color: var(--primary);
+}
+
+[data-theme="dark"] pre {
+  background-color: rgba(33, 33, 45, 0.7);
+  border-left: 4px solid var(--primary);
+}
+
+[data-theme="dark"] pre code {
+  background-color: transparent;
 }
 
 pre::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: linear-gradient(90deg,
-    #ff416c, #ff4b2b, #f7b733, #4ecdc4, #2196f3);
+  content: none;
 }
 
-[data-theme="dark"] pre::before {
-  background: linear-gradient(90deg,
-    #ff416c, #ff4b2b, #f7b733, #4ecdc4, #2196f3);
+/* Simple code styling */
+pre code {
+  font-size: 0.95em;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
+
+/* Make inline code stand out */
+p code {
+  font-weight: bold;
+  padding: 0.15em 0.3em;
+}
+
 
 blockquote {
   position: relative;
