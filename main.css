@@ -15,7 +15,7 @@
   --background: #1f1f24;
   --text: #f0f0f0;
   --primary: #d42171;
-  --secondary: #d92662;
+  --secondary: #4e9dad;  /* Use same secondary color as light mode */
   --accent: #a41c4c;
   --border: #555555;
 }
@@ -256,16 +256,23 @@ a:hover::after {
 }
 
 ul {
-  padding-left: 1.5rem;
+  padding-left: 0.8rem;
 }
 
 li {
   margin-bottom: 0.8rem;
-  list-style-type: square;
+  list-style-type: none;
+  position: relative;
+  padding-left: 1.2rem;
 }
 
-li::marker {
-  color: var(--primary);
+li::before {
+  content: "\273F";  /* Unicode for flower ✿ */
+  position: absolute;
+  left: 0;
+  color: var(--secondary);
+  font-weight: normal;
+  font-size: 1em;
 }
 
 /* Dark mode toggle in footer */
@@ -425,22 +432,33 @@ img {
 /* Markdown page "Back" link */
 main > a:first-of-type {
   display: inline-block;
-  margin-bottom: 1.5rem;
-  color: var(--text);
-  background-color: var(--primary);
-  padding: 0.3rem 0.8rem;
-  border: 1px solid var(--border);
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  color: var(--secondary);
+  background-color: transparent;
+  padding: 0;
+  border: none;
   text-decoration: none;
   font-weight: bold;
-  box-shadow: var(--shadow);
-  border-radius: 2px;
+  box-shadow: none;
+  position: relative;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+main > a:first-of-type::before {
+  content: "\2190 ";  /* Unicode for left arrow */
+  margin-right: 0.2rem;
 }
 
 main > a:first-of-type:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid var(--border);
+  transform: none;
+  box-shadow: none;
+  color: var(--primary);
 }
+
 
 p {
   margin-bottom: 1.5rem;

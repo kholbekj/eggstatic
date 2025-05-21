@@ -1,11 +1,13 @@
 # About this site
-This site was made with the minimalistic Eggstatic template. 
+This site was made with the minimalistic [Eggstatic template](https://eggstatic.site), a fun little project of mine.
 
 Static sites generally come in two flavors:
 - Written as HTML, and served
 - Written as templates, and built by a generator (such as jekyll, hugo, gatsby)
 
 Eggstatic takes a middleway - you author content in markdown, but serve a single html file which does the parsing of markdown into html on the fly. 
+
+You [make your own easily!](/content/make_your_own.md)
 
 ## Tradeoffs
 
@@ -32,3 +34,5 @@ We're in early ideation still. I plan on adding
 - Some kind of fallback to no JS
 - Some baseline header/footer templating
 - Instructions on the capabilities of the markdown parser and your customization options
+
+# 
