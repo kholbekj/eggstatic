@@ -83,13 +83,53 @@
          background: var(--pico-card-background-color);
          border-top: 1px solid var(--pico-muted-border-color);
          display: flex;
-         gap: 8px;
+         gap: 12px;
+         justify-content: center;
+         align-items: center;
      }
 
      .controls-bar button {
          margin: 0;
-         padding: 8px 16px;
+         padding: 10px 20px;
          font-size: 0.85rem;
+         font-weight: 500;
+         border-radius: 6px;
+         transition: all 0.2s ease;
+         cursor: pointer;
+         border: 1px solid transparent;
+         min-width: 100px;
+         text-align: center;
+     }
+
+     .controls-bar button:not(.outline) {
+         background: var(--pico-primary-background);
+         color: var(--pico-primary-inverse);
+         border-color: var(--pico-primary-background);
+     }
+
+     .controls-bar button:not(.outline):hover {
+         background: var(--pico-primary-hover-background);
+         border-color: var(--pico-primary-hover-background);
+         transform: translateY(-1px);
+         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+     }
+
+     .controls-bar button.outline {
+         background: transparent;
+         color: var(--pico-color);
+         border-color: var(--pico-muted-border-color);
+     }
+
+     .controls-bar button.outline:hover {
+         background: var(--pico-muted-border-color);
+         border-color: var(--pico-color);
+         transform: translateY(-1px);
+         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+     }
+
+     .controls-bar button:active {
+         transform: translateY(0);
+         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
      }
 
      /* File tree styling */
@@ -231,6 +271,24 @@
          padding-left: 32px;
      }
 
+     .file-dirty-indicator {
+         margin-left: auto;
+         width: 8px;
+         height: 8px;
+         border-radius: 50%;
+         background: #ff6b6b;
+         opacity: 0;
+         transition: opacity 0.2s ease;
+     }
+
+     .file-link.dirty .file-dirty-indicator {
+         opacity: 1;
+     }
+
+     .file-link.dirty .file-name {
+         font-style: italic;
+     }
+
      /* Responsive design */
      @media (max-width: 768px) {
          .sidebar {
@@ -291,7 +349,7 @@
         </div>
         <div id="editor"></div>
         <div class="controls-bar" id="controls">
-          <button id="save" class="outline">Save File</button>
+          <button id="save">Save File</button>
           <button id="preview" class="outline">Preview</button>
           <button id="download" class="outline">Download</button>
         </div>

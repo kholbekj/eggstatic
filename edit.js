@@ -4,6 +4,28 @@ document.querySelector('html').setAttribute('data-theme', 'dark');
 var editor = ace.edit("editor");
 editor.setTheme("ace/theme/dracula");
 
+// Global variables for dirty state tracking
+var dirtyFiles = new Set();
+var originalFileContents = new Map();
+var isLoadingFile = false;
+
+// Global functions for dirty state management
+function markFileDirty(fileName) {
+  dirtyFiles.add(fileName);
+  const fileLink = document.querySelector(`[data-filename="${fileName}"]`);
+  if (fileLink) {
+    fileLink.classList.add('dirty');
+  }
+}
+
+function markFileClean(fileName) {
+  dirtyFiles.delete(fileName);
+  const fileLink = document.querySelector(`[data-filename="${fileName}"]`);
+  if (fileLink) {
+    fileLink.classList.remove('dirty');
+  }
+}
+
 loadFiles();
 
 // Load the zip file, open index.html in the editor
@@ -47,12 +69,34 @@ async function loadFiles() {
     filemap.set('index.html', newHtml);
   }
 
+  // Variables are now global - defined at the top of the file
+
   // Load index.html
   document.getElementById('editor').dataset.currentFile = 'index.html';
   const indexHtml = filemap.get('index.html');
+  isLoadingFile = true;
   editor.setValue(indexHtml);
+  isLoadingFile = false;
+  originalFileContents.set('index.html', indexHtml);
   editor.session.setMode("ace/mode/html");
   updateEditorHeader('index.html');
+
+  // Track changes to mark files as dirty
+  editor.session.on('change', function() {
+    if (isLoadingFile) return; // Don't mark as dirty when loading file
+
+    const currentFile = document.getElementById('editor').dataset.currentFile;
+    if (currentFile) {
+      const currentContent = editor.getValue();
+      const originalContent = originalFileContents.get(currentFile) || '';
+
+      if (currentContent !== originalContent) {
+        markFileDirty(currentFile);
+      } else {
+        markFileClean(currentFile);
+      }
+    }
+  });
 
   const fileExplorer = document.getElementById('fileExplorer');
   const fileList = document.createElement('ul');
@@ -89,6 +133,8 @@ async function loadFiles() {
       activeLink.classList.add('active');
     }
   }
+
+  // Functions are now global - defined at the top of the file
 
   // Build proper nested folder structure
   function buildFolderStructure(fileNames) {
@@ -148,15 +194,28 @@ async function loadFiles() {
     icon.textContent = getFileIcon(fileName);
 
     const name = document.createElement('span');
+    name.className = 'file-name';
     name.textContent = isInFolder ? fileName.split('/').pop() : fileName;
+
+    const dirtyIndicator = document.createElement('span');
+    dirtyIndicator.className = 'file-dirty-indicator';
 
     link.appendChild(icon);
     link.appendChild(name);
+    link.appendChild(dirtyIndicator);
 
     link.onclick = async (e) => {
       e.preventDefault();
       const text = window.files.get(fileName);
+
+      // Set loading flag to prevent marking as dirty
+      isLoadingFile = true;
       editor.setValue(text);
+      isLoadingFile = false;
+
+      // Store original content for this file
+      originalFileContents.set(fileName, text);
+
       editor.session.setMode("ace/mode/" + languageMode);
       document.getElementById('editor').dataset.currentFile = fileName;
       updateEditorHeader(fileName);
@@ -322,6 +381,10 @@ document.getElementById('save').addEventListener('click', function() {
   content = editor.getValue();
   window.files.set(fileName, content);
   storeInLocalStorage(window.files);
+
+  // Update original content and mark file as clean
+  originalFileContents.set(fileName, content);
+  markFileClean(fileName);
 
   // Visual feedback
   saveBtn.textContent = 'Saved!';
