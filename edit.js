@@ -629,7 +629,7 @@ function initializeTour() {
     id: 'open-hello-file',
     title: 'Open a Content File',
     text: `
-      <p>Now click on "hello.md" inside the content folder to open your first content file.</p>
+      <p>Now click on "about.md" inside the content folder to open your first content file.</p>
       <p>This file contains sample content that you can edit.</p>
     `,
     attachTo: {
@@ -638,8 +638,8 @@ function initializeTour() {
     },
     beforeShowPromise: function() {
       return new Promise(function(resolve) {
-        // Highlight the hello.md file if it exists
-        const helloFile = document.querySelector('[data-filename="content/hello.md"]');
+        // Highlight the about.md file if it exists
+        const helloFile = document.querySelector('[data-filename="content/about.md"]');
         if (helloFile) {
           helloFile.style.background = 'var(--pico-primary-background)';
           helloFile.style.color = 'var(--pico-primary-inverse)';
@@ -844,7 +844,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Step 5: Detect hello.md file click
     if (currentStep.id === 'open-hello-file') {
-      const target = e.target.closest('[data-filename="content/hello.md"]');
+      const target = e.target.closest('[data-filename="content/about.md"]');
       if (target) {
         setTimeout(() => tourInstance.next(), 500); // Small delay for file to load
       }
