@@ -90,7 +90,43 @@ async function loadFiles() {
     }
   }
 
-  for (const fileName of fileNames.filter(fileName => fileName.endsWith('.html') || fileName.endsWith('.css') || fileName.endsWith('.js') || fileName.endsWith('.md'))) {
+  // Build proper nested folder structure
+  function buildFolderStructure(fileNames) {
+    const structure = { files: [], folders: new Map() };
+
+    fileNames.filter(fileName => fileName.endsWith('.html') || fileName.endsWith('.css') || fileName.endsWith('.js') || fileName.endsWith('.md')).forEach(fileName => {
+      const parts = fileName.split('/');
+
+      if (parts.length === 1) {
+        // Root file
+        structure.files.push(fileName);
+      } else {
+        // File in folder(s)
+        let current = structure;
+
+        // Navigate/create folder structure
+        for (let i = 0; i < parts.length - 1; i++) {
+          const folderName = parts[i];
+
+          if (!current.folders.has(folderName)) {
+            current.folders.set(folderName, { files: [], folders: new Map() });
+          }
+
+          current = current.folders.get(folderName);
+        }
+
+        // Add file to the final folder
+        current.files.push(fileName);
+      }
+    });
+
+    return structure;
+  }
+
+  const fileStructure = buildFolderStructure(fileNames);
+
+  // Function to create file element
+  function createFileElement(fileName, isInFolder = false) {
     const languageModes = {
       'html': 'html',
       'css': 'css',
@@ -103,7 +139,7 @@ async function loadFiles() {
     listItem.className = 'file-item';
 
     const link = document.createElement('a');
-    link.className = 'file-link';
+    link.className = isInFolder ? 'file-link in-folder' : 'file-link';
     link.href = '#';
     link.setAttribute('data-filename', fileName);
 
@@ -112,7 +148,7 @@ async function loadFiles() {
     icon.textContent = getFileIcon(fileName);
 
     const name = document.createElement('span');
-    name.textContent = fileName;
+    name.textContent = isInFolder ? fileName.split('/').pop() : fileName;
 
     link.appendChild(icon);
     link.appendChild(name);
@@ -128,8 +164,121 @@ async function loadFiles() {
     }
 
     listItem.appendChild(link);
-    fileList.appendChild(listItem);
+    return listItem;
   }
+
+  // Function to get current folder path from nested structure
+  function getFolderPath(folderName, parentPath = '') {
+    return parentPath ? `${parentPath}/${folderName}` : folderName;
+  }
+
+  // Function to create folder element with proper nesting
+  function createFolderElement(folderName, folderData, parentElement, parentPath = '') {
+    const currentPath = getFolderPath(folderName, parentPath);
+
+    const folderItem = document.createElement('li');
+    folderItem.className = 'folder-item';
+
+    const folderHeader = document.createElement('div');
+    folderHeader.className = 'folder-header';
+
+    const toggle = document.createElement('span');
+    toggle.className = 'folder-toggle';
+    toggle.textContent = '▶';
+
+    const icon = document.createElement('span');
+    icon.className = 'folder-icon';
+    icon.textContent = '📁';
+
+    const name = document.createElement('span');
+    name.textContent = folderName;
+
+    folderHeader.appendChild(toggle);
+    folderHeader.appendChild(icon);
+    folderHeader.appendChild(name);
+
+    // Create folder contents
+    const folderContents = document.createElement('div');
+    folderContents.className = 'folder-contents';
+    folderContents.style.display = 'none';
+
+    const filesList = document.createElement('ul');
+    filesList.className = 'file-list';
+
+    // Add "New File" button for this folder
+    const newFileBtn = document.createElement('button');
+    newFileBtn.className = 'folder-new-file-btn';
+    newFileBtn.textContent = '+ New File';
+    newFileBtn.onclick = (e) => {
+      e.stopPropagation(); // Prevent folder toggle
+      const fileName = prompt(`Enter filename for ${currentPath}/`);
+      if (fileName) {
+        const fullPath = `${currentPath}/${fileName}`;
+        window.files.set(fullPath, '');
+
+        // Create and add the new file element
+        const fileElement = createFileElement(fullPath, true);
+
+        // Insert before the "New File" button
+        filesList.insertBefore(fileElement, newFileBtn);
+
+        // Open the new file
+        const link = fileElement.querySelector('.file-link');
+        link.click();
+      }
+    };
+
+    filesList.appendChild(newFileBtn);
+
+    // Add files in this folder
+    folderData.files.forEach(fileName => {
+      // Insert files before the "New File" button
+      filesList.insertBefore(createFileElement(fileName, true), newFileBtn);
+    });
+
+    // Add subfolders recursively
+    folderData.folders.forEach((subFolderData, subFolderName) => {
+      // Insert subfolders before the "New File" button
+      createFolderElement(subFolderName, subFolderData, filesList, currentPath);
+    });
+
+    folderContents.appendChild(filesList);
+
+    // Toggle functionality
+    folderHeader.onclick = () => {
+      const isExpanded = folderContents.style.display === 'block';
+      if (isExpanded) {
+        folderContents.style.display = 'none';
+        toggle.textContent = '▶';
+        toggle.classList.remove('expanded');
+        icon.textContent = '📁';
+      } else {
+        folderContents.style.display = 'block';
+        toggle.textContent = '▼';
+        toggle.classList.add('expanded');
+        icon.textContent = '📂';
+      }
+    };
+
+    folderItem.appendChild(folderHeader);
+    folderItem.appendChild(folderContents);
+    parentElement.appendChild(folderItem);
+  }
+
+  // Render the file structure
+  function renderFileStructure(structure, parentElement) {
+    // Add root files first
+    structure.files.forEach(fileName => {
+      parentElement.appendChild(createFileElement(fileName));
+    });
+
+    // Add folders
+    structure.folders.forEach((folderData, folderName) => {
+      createFolderElement(folderName, folderData, parentElement, '');
+    });
+  }
+
+  renderFileStructure(fileStructure, fileList);
 
   // Set initial active file
   setActiveFile('index.html');
@@ -139,50 +288,16 @@ async function loadFiles() {
   newFileButton.className = 'new-file-btn';
   newFileButton.textContent = '+ New File';
   newFileButton.onclick = () => {
-    const fileName = prompt('Enter the name of the new file');
+    const fileName = prompt('Enter the name of the new file (use folder/subfolder/file.ext for nested folders)');
     if (fileName) {
       window.files.set(fileName, '');
 
-      const languageModes = {
-        'html': 'html',
-        'css': 'css',
-        'js': 'javascript',
-        'md': 'markdown'
-      };
-      const languageMode = languageModes[fileName.split('.').pop()];
-
-      const listItem = document.createElement('li');
-      listItem.className = 'file-item';
-
-      const link = document.createElement('a');
-      link.className = 'file-link';
-      link.href = '#';
-      link.setAttribute('data-filename', fileName);
-
-      const icon = document.createElement('span');
-      icon.className = 'file-icon';
-      icon.textContent = getFileIcon(fileName);
-
-      const name = document.createElement('span');
-      name.textContent = fileName;
-
-      link.appendChild(icon);
-      link.appendChild(name);
-
-      link.onclick = async (e) => {
-        e.preventDefault();
-        const text = window.files.get(fileName);
-        editor.setValue(text);
-        editor.session.setMode("ace/mode/" + languageMode);
-        document.getElementById('editor').dataset.currentFile = fileName;
-        updateEditorHeader(fileName);
-        setActiveFile(fileName);
-      }
-
-      listItem.appendChild(link);
-      fileList.appendChild(listItem);
+      // For new files, just add to the end - user can refresh to see proper structure
+      const fileElement = createFileElement(fileName, fileName.includes('/'));
+      fileList.appendChild(fileElement);
 
       // Click the new file to open it
+      const link = fileElement.querySelector('.file-link');
       link.click();
     }
   }

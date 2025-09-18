@@ -102,6 +102,7 @@
      .file-item {
          margin: 0;
          padding: 0;
+         list-style: none;
      }
 
      .file-link {
@@ -150,6 +151,84 @@
          background: var(--pico-muted-border-color);
          border-color: var(--pico-color);
          color: var(--pico-color);
+     }
+
+     .folder-new-file-btn {
+         margin: 4px 8px 8px;
+         padding: 4px 8px;
+         font-size: 0.75rem;
+         background: transparent;
+         border: 1px solid var(--pico-muted-border-color);
+         color: var(--pico-muted-color);
+         cursor: pointer;
+         border-radius: 3px;
+         transition: all 0.15s ease;
+         opacity: 0.7;
+     }
+
+     .folder-new-file-btn:hover {
+         background: var(--pico-muted-border-color);
+         border-color: var(--pico-color);
+         color: var(--pico-color);
+         opacity: 1;
+     }
+
+     /* Folder styling */
+     .folder-item {
+         margin: 0;
+         padding: 0;
+         list-style: none;
+     }
+
+     .folder-header {
+         display: flex;
+         align-items: center;
+         padding: 6px 16px;
+         color: var(--pico-color);
+         font-size: 0.85rem;
+         cursor: pointer;
+         border-radius: 0;
+         transition: background-color 0.15s ease;
+         user-select: none;
+     }
+
+     .folder-header:hover {
+         background: var(--pico-muted-border-color);
+     }
+
+     .folder-toggle {
+         margin-right: 4px;
+         font-size: 0.7rem;
+         transition: transform 0.15s ease;
+         width: 12px;
+         text-align: center;
+     }
+
+     .folder-toggle.expanded {
+         transform: rotate(90deg);
+     }
+
+     .folder-icon {
+         margin-right: 8px;
+         font-size: 0.9rem;
+         width: 16px;
+         text-align: center;
+     }
+
+     .folder-contents {
+         display: none;
+         list-style: none;
+         margin: 0;
+         padding: 0;
+         padding-left: 16px;
+     }
+
+     .folder-contents.expanded {
+         display: block;
+     }
+
+     .file-link.in-folder {
+         padding-left: 32px;
      }
 
      /* Responsive design */
