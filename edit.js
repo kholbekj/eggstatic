@@ -52,16 +52,45 @@ async function loadFiles() {
   const indexHtml = filemap.get('index.html');
   editor.setValue(indexHtml);
   editor.session.setMode("ace/mode/html");
+  updateEditorHeader('index.html');
 
-  const fileLinks = document.createElement('ul');
-  const br = document.createElement('br');
-  fileLinks.id = 'fileLinks';
-  document.getElementById('controls').after(br);
-  br.after(fileLinks);
+  const fileExplorer = document.getElementById('fileExplorer');
+  const fileList = document.createElement('ul');
+  fileList.className = 'file-list';
+  fileExplorer.appendChild(fileList);
+
+  // Function to get file icon based on extension
+  function getFileIcon(fileName) {
+    const ext = fileName.split('.').pop().toLowerCase();
+    const icons = {
+      'html': '🌐',
+      'css': '🎨',
+      'js': '⚡',
+      'md': '📝',
+      'json': '📋',
+      'png': '🖼️',
+      'jpg': '🖼️',
+      'jpeg': '🖼️',
+      'gif': '🖼️'
+    };
+    return icons[ext] || '📄';
+  }
+
+  // Function to update editor header with current file
+  function updateEditorHeader(fileName) {
+    document.getElementById('editorHeader').textContent = fileName || 'No file selected';
+  }
+
+  // Function to set active file in the tree
+  function setActiveFile(fileName) {
+    document.querySelectorAll('.file-link').forEach(link => link.classList.remove('active'));
+    const activeLink = document.querySelector(`[data-filename="${fileName}"]`);
+    if (activeLink) {
+      activeLink.classList.add('active');
+    }
+  }
+
   for (const fileName of fileNames.filter(fileName => fileName.endsWith('.html') || fileName.endsWith('.css') || fileName.endsWith('.js') || fileName.endsWith('.md'))) {
-    const link = document.createElement('a');
-    link.href = '#';
-    link.innerText = fileName;
     const languageModes = {
       'html': 'html',
       'css': 'css',
@@ -70,29 +99,50 @@ async function loadFiles() {
     };
     const languageMode = languageModes[fileName.split('.').pop()];
 
-    link.onclick = async () => {
+    const listItem = document.createElement('li');
+    listItem.className = 'file-item';
+
+    const link = document.createElement('a');
+    link.className = 'file-link';
+    link.href = '#';
+    link.setAttribute('data-filename', fileName);
+
+    const icon = document.createElement('span');
+    icon.className = 'file-icon';
+    icon.textContent = getFileIcon(fileName);
+
+    const name = document.createElement('span');
+    name.textContent = fileName;
+
+    link.appendChild(icon);
+    link.appendChild(name);
+
+    link.onclick = async (e) => {
+      e.preventDefault();
       const text = window.files.get(fileName);
-      console.log(text);
       editor.setValue(text);
-      console.log(`Setting mode to ace/mode/${languageMode}`);
       editor.session.setMode("ace/mode/" + languageMode);
       document.getElementById('editor').dataset.currentFile = fileName;
+      updateEditorHeader(fileName);
+      setActiveFile(fileName);
     }
-    var p = document.createElement('li');
-    p.appendChild(link);
-    fileLinks.appendChild(p);
+
+    listItem.appendChild(link);
+    fileList.appendChild(listItem);
   }
+
+  // Set initial active file
+  setActiveFile('index.html');
 
   // Add a 'new file' button
   const newFileButton = document.createElement('button');
-  newFileButton.innerText = 'New File';
+  newFileButton.className = 'new-file-btn';
+  newFileButton.textContent = '+ New File';
   newFileButton.onclick = () => {
     const fileName = prompt('Enter the name of the new file');
     if (fileName) {
       window.files.set(fileName, '');
-      const link = document.createElement('a');
-      link.href = '#';
-      link.innerText = fileName;
+
       const languageModes = {
         'html': 'html',
         'css': 'css',
@@ -101,20 +151,42 @@ async function loadFiles() {
       };
       const languageMode = languageModes[fileName.split('.').pop()];
 
-      link.onclick = async () => {
+      const listItem = document.createElement('li');
+      listItem.className = 'file-item';
+
+      const link = document.createElement('a');
+      link.className = 'file-link';
+      link.href = '#';
+      link.setAttribute('data-filename', fileName);
+
+      const icon = document.createElement('span');
+      icon.className = 'file-icon';
+      icon.textContent = getFileIcon(fileName);
+
+      const name = document.createElement('span');
+      name.textContent = fileName;
+
+      link.appendChild(icon);
+      link.appendChild(name);
+
+      link.onclick = async (e) => {
+        e.preventDefault();
         const text = window.files.get(fileName);
         editor.setValue(text);
         editor.session.setMode("ace/mode/" + languageMode);
         document.getElementById('editor').dataset.currentFile = fileName;
+        updateEditorHeader(fileName);
+        setActiveFile(fileName);
       }
-      var p = document.createElement('li');
-      p.appendChild(link);
-      // Prepend to button
-      fileLinks.insertBefore(p, newFileButton);
+
+      listItem.appendChild(link);
+      fileList.appendChild(listItem);
+
+      // Click the new file to open it
       link.click();
     }
   }
-  fileLinks.appendChild(newFileButton);
+  fileExplorer.appendChild(newFileButton);
 
   return files;
 }
@@ -122,10 +194,30 @@ async function loadFiles() {
 // Save file on press save
 document.getElementById('save').addEventListener('click', function() {
   const fileName = document.getElementById('editor').dataset.currentFile;
+  const saveBtn = document.getElementById('save');
+  const originalText = saveBtn.textContent;
+
+  if (!fileName) {
+    saveBtn.textContent = 'No file selected';
+    setTimeout(() => saveBtn.textContent = originalText, 2000);
+    return;
+  }
+
   console.log(fileName);
   content = editor.getValue();
   window.files.set(fileName, content);
   storeInLocalStorage(window.files);
+
+  // Visual feedback
+  saveBtn.textContent = 'Saved!';
+  saveBtn.style.background = 'var(--pico-primary-background)';
+  saveBtn.style.color = 'var(--pico-primary-inverse)';
+
+  setTimeout(() => {
+    saveBtn.textContent = originalText;
+    saveBtn.style.background = '';
+    saveBtn.style.color = '';
+  }, 1500);
 });
 
 // Zip and the files, then store them in local storage
