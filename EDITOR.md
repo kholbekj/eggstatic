@@ -17,6 +17,7 @@ The Eggstatic Editor is a web-based code editor built for editing static site fi
 - **JSZip** - File compression for project downloads and storage
 - **Marked** - Markdown parsing for preview functionality
 - **Pico CSS** - Base styling framework (cyan theme)
+- **Shepherd.js** - Interactive guided tour system for new user onboarding
 
 ## Features
 
@@ -60,6 +61,13 @@ The Eggstatic Editor is a web-based code editor built for editing static site fi
 - **Automatic save** of project as compressed blob
 - **Session recovery** with user confirmation
 - **Project download** as ZIP file
+
+### 7. Interactive Guided Tour
+- **First-time user onboarding** with Shepherd.js
+- **10-step walkthrough** covering core editor functionality
+- **Smart auto-advancement** based on user actions
+- **Dismissible interface** with multiple exit options
+- **Contextual highlighting** of relevant UI elements
 
 ## Styling System
 
@@ -193,5 +201,75 @@ var filemap;                          // Map of all project files
 - **Module system** to organize JavaScript better
 - **Unit tests** for core functionality
 - **Performance monitoring** and optimization
+
+## Guided Tour System
+
+### Implementation Details
+
+The editor includes a comprehensive guided tour built with Shepherd.js that introduces new users to the core functionality. The tour is designed to be educational, non-intrusive, and dismissible.
+
+### Tour Configuration
+```javascript
+const tour = new Shepherd.Tour({
+  useModalOverlay: true,     // Gray out background for focus
+  exitOnEsc: true,          // Allow ESC key to dismiss
+  keyboardNavigation: true,  // Enable arrow key navigation
+  defaultStepOptions: {
+    cancelIcon: { enabled: true }  // Show X button on each step
+  }
+});
+```
+
+### Tour Steps Overview
+
+1. **Welcome** - Introduction to Eggstatic Editor
+2. **File Explorer** - Navigate the sidebar file browser
+3. **Code Editor** - Understanding the main editing area
+4. **Open Content Folder** - Expand the content directory
+5. **Open Content File** - Select hello.md for editing
+6. **Edit Content** - Try making changes to content
+7. **Show Red Dot** - Explain unsaved changes indicator
+8. **Save Your Work** - Use the Save File button
+9. **Preview Your Site** - Generate live preview
+10. **Publishing Options** - Final deployment choices
+
+### Smart Auto-Advancement
+
+The tour includes intelligent progression that responds to user actions:
+
+- **Folder clicks** automatically advance from "Open Content Folder" step
+- **File clicks** automatically advance from "Open Content File" step
+- **Editor changes** automatically advance from "Edit Content" step (2-second debounce)
+
+### User Experience Features
+
+- **One-time appearance** - Tour only shows for first-time users
+- **Persistent dismissal** - Once dismissed, never reappears
+- **Multiple exit options** - ESC key, X button, or complete normally
+- **Contextual highlighting** - UI elements are highlighted during relevant steps
+- **Non-blocking tooltips** - Positioned to avoid interfering with functionality
+
+### Session Management
+
+```javascript
+// Tour state is tracked in localStorage
+localStorage.setItem('eggstatic-tour-completed', 'true');
+
+// Auto-start only for new users
+if (!localStorage.getItem('eggstatic-tour-completed')) {
+  tour.start();
+}
+```
+
+### Styling Integration
+
+The tour uses custom CSS that integrates with the Pico CSS theme:
+
+- **Shepherd tooltips** styled to match editor theme
+- **Button styling** consistent with existing UI components
+- **Modal overlay** uses Pico CSS color variables
+- **Responsive positioning** adapts to different screen sizes
+
+This guided tour system provides an effective onboarding experience that helps users understand the editor's capabilities without overwhelming them with information.
 
 This editor provides a solid foundation for web-based code editing with room for significant expansion and enhancement.
