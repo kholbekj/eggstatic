@@ -13,14 +13,15 @@ class DriftingPublisher {
     const authUrl = `${this.serverUrl}/cli/auth/${sessionId}`;
 
     console.log('🔐 Opening authentication window...');
+    console.log('💡 New to drifting.ink? Take your time to register - we\'ll wait up to 15 minutes!');
 
     // Open auth window
     const authWindow = window.open(authUrl, 'drifting-auth', 'width=500,height=600');
 
-    // Poll for token
+    // Poll for token - much longer timeout for new user registration
     console.log('⏳ Waiting for authentication...');
 
-    for (let i = 0; i < 60; i++) { // 5 minutes max
+    for (let i = 0; i < 180; i++) { // 15 minutes max (180 × 5 seconds)
       await this.sleep(5000);
 
       try {
@@ -35,19 +36,31 @@ class DriftingPublisher {
             return this.token;
           }
         } else if (response.status === 404) {
-          throw new Error('Authentication session not found');
+          // Session not found yet - normal for new users who need to register
+          // Only throw error after a reasonable amount of time (10+ minutes)
+          if (i > 120) { // After 10 minutes, start warning about 404s
+            console.log(`⚠️ Session not found after ${Math.floor(i/12)} minutes. User may need to complete registration.`);
+          }
+          // Continue polling - don't throw error immediately
         } else if (response.status === 410) {
           throw new Error('Authentication session expired');
         }
+
+        // Show progress every minute to reassure user we're still waiting
+        if (i > 0 && i % 12 === 0) {
+          const minutesWaited = Math.floor(i / 12);
+          const minutesLeft = 15 - minutesWaited;
+          console.log(`⏳ Still waiting... (${minutesWaited} min elapsed, ${minutesLeft} min remaining)`);
+        }
       } catch (error) {
-        if (error.message.includes('session')) throw error;
-        // Network error, continue polling
+        if (error.message.includes('expired')) throw error;
+        // Network error or other issue, continue polling
         console.log('.');
       }
     }
 
     authWindow.close();
-    throw new Error('Authentication timed out');
+    throw new Error('Authentication timed out after 15 minutes. Please try again.');
   }
 
   // Fetch user's existing sites
