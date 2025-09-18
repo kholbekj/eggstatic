@@ -490,3 +490,388 @@ document.getElementById('download').addEventListener('click', function() {
     link.click();
   });
 });
+
+// End of Download Generation
+
+// Beginning of Guided Tour with Shepherd.js
+function initializeTour() {
+  const tour = new Shepherd.Tour({
+    useModalOverlay: true,
+    exitOnEsc: true,
+    keyboardNavigation: true,
+    defaultStepOptions: {
+      classes: 'shadow-md bg-purple-dark',
+      scrollTo: true,
+      cancelIcon: {
+        enabled: true
+      }
+    }
+  });
+
+  // Step 1: Welcome
+  tour.addStep({
+    title: 'Welcome to Eggstatic Editor',
+    text: `
+      <p>Welcome to the Eggstatic Editor! This is your website editor that runs entirely in your browser.</p>
+      <p>We'll skip the complicated setup and get you started making your site right away.</p>
+    `,
+    buttons: [
+      {
+        text: 'Get Started',
+        action: tour.next,
+        classes: 'shepherd-button-primary'
+      }
+    ]
+  });
+
+  // Step 2: File Explorer
+  tour.addStep({
+    title: 'File Explorer',
+    text: `
+      <p>This is your file explorer where you can see all the files that make up your website.</p>
+      <p>You can browse folders, create new files, and click on any file to edit it.</p>
+    `,
+    attachTo: {
+      element: '.sidebar',
+      on: 'right'
+    },
+    buttons: [
+      {
+        text: 'Back',
+        action: tour.back,
+        classes: 'shepherd-button-secondary'
+      },
+      {
+        text: 'Continue',
+        action: tour.next,
+        classes: 'shepherd-button-primary'
+      }
+    ]
+  });
+
+  // Step 3: Code Editor
+  tour.addStep({
+    title: 'Code Editor',
+    text: `
+      <p>This is where you'll write and edit your content.</p>
+      <p>Click on any file in the sidebar to open it here. You get syntax highlighting and all the editing features you need.</p>
+    `,
+    attachTo: {
+      element: '#editor',
+      on: 'left'
+    },
+    buttons: [
+      {
+        text: 'Back',
+        action: tour.back,
+        classes: 'shepherd-button-secondary'
+      },
+      {
+        text: 'Continue',
+        action: tour.next,
+        classes: 'shepherd-button-primary'
+      }
+    ]
+  });
+
+  // Step 4: Open the content folder
+  tour.addStep({
+    id: 'open-content-folder',
+    title: 'Open the Content Folder',
+    text: `
+      <p>First, click on the "content" folder to expand it and see the content files inside.</p>
+      <p>The content folder contains the text and pages for your website.</p>
+    `,
+    attachTo: {
+      element: '.sidebar',
+      on: 'right'
+    },
+    beforeShowPromise: function() {
+      return new Promise(function(resolve) {
+        // Find and highlight the content folder header
+        const folderHeaders = document.querySelectorAll('.folder-header');
+        let contentFolder = null;
+
+        folderHeaders.forEach(header => {
+          const text = header.textContent.trim();
+          if (text === '▶📁content' || text === '▼📂content') {
+            contentFolder = header;
+          }
+        });
+
+        if (contentFolder) {
+          contentFolder.style.background = 'var(--pico-primary-background)';
+          contentFolder.style.color = 'var(--pico-primary-inverse)';
+          setTimeout(() => {
+            contentFolder.style.background = '';
+            contentFolder.style.color = '';
+          }, 3000);
+        }
+        resolve();
+      });
+    },
+    buttons: [
+      {
+        text: 'Back',
+        action: tour.back,
+        classes: 'shepherd-button-secondary'
+      },
+      {
+        text: 'Skip',
+        action: tour.next,
+        classes: 'shepherd-button-primary'
+      }
+    ]
+  });
+
+  // Step 5: Open a content file
+  tour.addStep({
+    id: 'open-hello-file',
+    title: 'Open a Content File',
+    text: `
+      <p>Now click on "hello.md" inside the content folder to open your first content file.</p>
+      <p>This file contains sample content that you can edit.</p>
+    `,
+    attachTo: {
+      element: '.sidebar',
+      on: 'right'
+    },
+    beforeShowPromise: function() {
+      return new Promise(function(resolve) {
+        // Highlight the hello.md file if it exists
+        const helloFile = document.querySelector('[data-filename="content/hello.md"]');
+        if (helloFile) {
+          helloFile.style.background = 'var(--pico-primary-background)';
+          helloFile.style.color = 'var(--pico-primary-inverse)';
+          setTimeout(() => {
+            helloFile.style.background = '';
+            helloFile.style.color = '';
+          }, 3000);
+        }
+        resolve();
+      });
+    },
+    buttons: [
+      {
+        text: 'Back',
+        action: tour.back,
+        classes: 'shepherd-button-secondary'
+      },
+      {
+        text: 'Skip',
+        action: tour.next,
+        classes: 'shepherd-button-primary'
+      }
+    ]
+  });
+
+  // Step 6: Edit content
+  tour.addStep({
+    id: 'edit-content',
+    title: 'Edit Content',
+    text: `<p>Try editing the content!</p>`,
+    attachTo: {
+      element: '#editor',
+      on: 'bottom-end'
+    },
+    buttons: [
+      {
+        text: 'Skip',
+        action: tour.next,
+        classes: 'shepherd-button-primary'
+      }
+    ]
+  });
+
+  // Step 7: Show red dot indicator
+  tour.addStep({
+    id: 'show-red-dot',
+    title: 'Unsaved Changes',
+    text: `<p>See the red dot? That shows you have unsaved changes!</p>`,
+    attachTo: {
+      element: '.sidebar',
+      on: 'right'
+    },
+    beforeShowPromise: function() {
+      return new Promise(function(resolve) {
+        // Highlight the file with the red dot
+        const dirtyFile = document.querySelector('.file-link.dirty');
+        if (dirtyFile) {
+          dirtyFile.style.background = 'var(--pico-primary-background)';
+          dirtyFile.style.color = 'var(--pico-primary-inverse)';
+          setTimeout(() => {
+            dirtyFile.style.background = '';
+            dirtyFile.style.color = '';
+          }, 3000);
+        }
+        resolve();
+      });
+    },
+    buttons: [
+      {
+        text: 'Back',
+        action: tour.back,
+        classes: 'shepherd-button-secondary'
+      },
+      {
+        text: 'Continue',
+        action: tour.next,
+        classes: 'shepherd-button-primary'
+      }
+    ]
+  });
+
+  // Step 8: Save your work
+  tour.addStep({
+    title: 'Save Your Work',
+    text: `
+      <p>Don't forget to save your changes! Click the "Save File" button to save your edits.</p>
+      <p>You'll see the button change to "Saved!" and the red dot will disappear.</p>
+    `,
+    attachTo: {
+      element: '#save',
+      on: 'top'
+    },
+    buttons: [
+      {
+        text: 'Back',
+        action: tour.back,
+        classes: 'shepherd-button-secondary'
+      },
+      {
+        text: 'Continue',
+        action: tour.next,
+        classes: 'shepherd-button-primary'
+      }
+    ]
+  });
+
+  // Step 9: Preview your site
+  tour.addStep({
+    title: 'Preview Your Site',
+    text: `
+      <p>Want to see how your site looks? Click "Preview" to open your site in a new tab.</p>
+      <p>This generates a live version of your site that you can view and test.</p>
+    `,
+    attachTo: {
+      element: '#preview',
+      on: 'top'
+    },
+    buttons: [
+      {
+        text: 'Back',
+        action: tour.back,
+        classes: 'shepherd-button-secondary'
+      },
+      {
+        text: 'Continue',
+        action: tour.next,
+        classes: 'shepherd-button-primary'
+      }
+    ]
+  });
+
+  // Step 10: Publishing options
+  tour.addStep({
+    title: 'Publishing Your Site',
+    text: `
+      <p><strong>Congratulations!</strong> You've successfully created and edited your website!</p>
+      <p>When you're ready to publish, you can:</p>
+      <ul>
+        <li><strong>Download</strong> your site as a ZIP file</li>
+        <li><strong>Upload</strong> it to free hosting services like Neocities</li>
+        <li><strong>Publish directly</strong> with drifting.ink - a quick, free host</li>
+        <li><strong>Continue editing</strong> to add more content</li>
+      </ul>
+      <p>Your website will be completely yours - no subscription fees or vendor lock-in!</p>
+    `,
+    buttons: [
+      {
+        text: 'Back',
+        action: tour.back,
+        classes: 'shepherd-button-secondary'
+      },
+      {
+        text: 'Finish Tour',
+        action: tour.complete,
+        classes: 'shepherd-button-primary'
+      }
+    ]
+  });
+
+  return tour;
+}
+
+// Initialize tour when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  const tour = initializeTour();
+  let tourInstance = null;
+
+  // Auto-start tour for new users only
+  if (!localStorage.getItem('eggstatic-tour-completed')) {
+    // Wait a bit for the page to fully load
+    setTimeout(() => {
+      tourInstance = tour;
+      tour.start();
+    }, 1000);
+  }
+
+  // Mark tour as completed when it finishes or is cancelled
+  tour.on('complete', function() {
+    localStorage.setItem('eggstatic-tour-completed', 'true');
+    tourInstance = null;
+  });
+
+  tour.on('cancel', function() {
+    localStorage.setItem('eggstatic-tour-completed', 'true');
+    tourInstance = null;
+  });
+
+  // Set up event listeners to automatically advance tour
+  document.addEventListener('click', function(e) {
+    if (!tourInstance) return;
+
+    const currentStep = tourInstance.getCurrentStep();
+    if (!currentStep) return;
+
+    // Step 4: Detect content folder click
+    if (currentStep.id === 'open-content-folder') {
+      const target = e.target.closest('.folder-header');
+      if (target && target.textContent.includes('content')) {
+        setTimeout(() => tourInstance.next(), 500); // Small delay for folder to expand
+      }
+    }
+
+    // Step 5: Detect hello.md file click
+    if (currentStep.id === 'open-hello-file') {
+      const target = e.target.closest('[data-filename="content/hello.md"]');
+      if (target) {
+        setTimeout(() => tourInstance.next(), 500); // Small delay for file to load
+      }
+    }
+  });
+
+  // Set up editor change detection for tour
+  let editorChangeTimeout;
+  function setupEditorTourDetection() {
+    if (typeof editor !== 'undefined' && editor.on) {
+      editor.on('change', function() {
+        if (!tourInstance) return;
+
+        const currentStep = tourInstance.getCurrentStep();
+        if (currentStep && currentStep.id === 'edit-content') {
+          // Debounce the tour advancement
+          clearTimeout(editorChangeTimeout);
+          editorChangeTimeout = setTimeout(() => {
+            tourInstance.next();
+          }, 2000); // Advance after 2 seconds of editing
+        }
+      });
+    }
+  }
+
+  // Wait for editor to be initialized, then setup detection
+  setTimeout(setupEditorTourDetection, 2000);
+});
+
+// End of Guided Tour

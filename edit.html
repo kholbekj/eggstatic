@@ -19,6 +19,10 @@
     <link href=" https://cdn.jsdelivr.net/npm/ace-builds@1.36.3/css/ace.min.css " rel="stylesheet">
     <!-- End of Ace -->
 
+    <!-- Shepherd.js for guided tours -->
+    <script src="https://cdn.jsdelivr.net/npm/shepherd.js@11.2.0/dist/js/shepherd.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/shepherd.js@11.2.0/dist/css/shepherd.css">
+
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css" media="screen">
@@ -329,6 +333,67 @@
 
      .file-explorer::-webkit-scrollbar-thumb:hover {
          background: var(--pico-color);
+     }
+
+     /* Shepherd.js custom styling */
+     .shepherd-modal-overlay-container {
+         background: rgba(0, 0, 0, 0.5);
+     }
+
+     .shepherd-element {
+         background: var(--pico-card-background-color);
+         border: 1px solid var(--pico-muted-border-color);
+         border-radius: 8px;
+         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+         max-width: 400px;
+     }
+
+     .shepherd-header {
+         background: var(--pico-primary-background);
+         color: var(--pico-primary-inverse);
+         padding: 12px 16px;
+         border-radius: 7px 7px 0 0;
+         font-weight: 600;
+     }
+
+     .shepherd-text {
+         padding: 16px;
+         color: var(--pico-color);
+         line-height: 1.5;
+     }
+
+     .shepherd-footer {
+         padding: 12px 16px;
+         border-top: 1px solid var(--pico-muted-border-color);
+         display: flex;
+         justify-content: space-between;
+         gap: 8px;
+     }
+
+     .shepherd-button {
+         padding: 8px 16px;
+         border-radius: 4px;
+         font-size: 0.85rem;
+         cursor: pointer;
+         border: 1px solid transparent;
+         transition: all 0.2s ease;
+     }
+
+     .shepherd-button-primary {
+         background: var(--pico-primary-background);
+         color: var(--pico-primary-inverse);
+         border-color: var(--pico-primary-background);
+     }
+
+     .shepherd-button-secondary {
+         background: transparent;
+         color: var(--pico-color);
+         border-color: var(--pico-muted-border-color);
+     }
+
+     .shepherd-button:hover {
+         transform: translateY(-1px);
+         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
      }
     </style>
   </head>
