@@ -71,15 +71,15 @@ async function loadFiles() {
 
   // Variables are now global - defined at the top of the file
 
-  // Load index.html
-  document.getElementById('editor').dataset.currentFile = 'index.html';
-  const indexHtml = filemap.get('index.html');
+  // Load index.md for better onboarding experience
+  document.getElementById('editor').dataset.currentFile = 'index.md';
+  const indexMd = filemap.get('index.md');
   isLoadingFile = true;
-  editor.setValue(indexHtml);
+  editor.setValue(indexMd);
   isLoadingFile = false;
-  originalFileContents.set('index.html', indexHtml);
-  editor.session.setMode("ace/mode/html");
-  updateEditorHeader('index.html');
+  originalFileContents.set('index.md', indexMd);
+  editor.session.setMode("ace/mode/markdown");
+  updateEditorHeader('index.md');
 
   // Track changes to mark files as dirty
   editor.session.on('change', function() {
@@ -340,7 +340,7 @@ async function loadFiles() {
   renderFileStructure(fileStructure, fileList);
 
   // Set initial active file
-  setActiveFile('index.html');
+  setActiveFile('index.md');
 
   // Add a 'new file' button
   const newFileButton = document.createElement('button');
@@ -440,10 +440,51 @@ async function generateSiteMapFromList(files) {
     }
   }
 
-  // Then do html, but replacing static links
+  // Then do html, but replacing static links and injecting index.md content
   for (var fileName of nonDirs.filter(name => name.endsWith('.html'))) {
     const html = files.get(fileName);
     doc = new DOMParser().parseFromString(html, 'text/html');
+
+    // If this is index.html, inject the index.md content
+    if (fileName === 'index.html') {
+      const indexMd = files.get('index.md');
+      if (indexMd) {
+        const mainContent = doc.querySelector('#main-content');
+        if (mainContent) {
+          // Load marked.js library for markdown parsing
+          const script = doc.createElement('script');
+          script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+          doc.head.appendChild(script);
+
+          // Create a script that will load and render the markdown
+          const loadScript = doc.createElement('script');
+          loadScript.textContent = `
+            document.addEventListener('DOMContentLoaded', function() {
+              const markdownContent = ${JSON.stringify(indexMd)};
+              const mainContent = document.querySelector('#main-content');
+              if (mainContent && typeof marked !== 'undefined') {
+                mainContent.innerHTML = marked.parse(markdownContent);
+
+                // Replace markdown links with proper navigation
+                mainContent.querySelectorAll('a[href$=".md"]').forEach(function(link) {
+                  const href = link.getAttribute('href');
+                  link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    fetch(href)
+                      .then(response => response.text())
+                      .then(text => {
+                        mainContent.innerHTML = '<a href="index.html">Back</a><br><br>' + marked.parse(text);
+                      });
+                  });
+                });
+              }
+            });
+          `;
+          doc.head.appendChild(loadScript);
+        }
+      }
+    }
+
     replaceStaticLinks(doc, siteMap);
     siteMap.set(`/${fileName}`, URL.createObjectURL(new Blob([doc.documentElement.outerHTML], { type: "text/html" })));
   }
@@ -574,37 +615,29 @@ function initializeTour() {
     ]
   });
 
-  // Step 4: Open the content folder
+  // Step 4: Homepage content
   tour.addStep({
-    id: 'open-content-folder',
-    title: 'Open the Content Folder',
+    id: 'homepage-content',
+    title: 'Your Homepage Content',
     text: `
-      <p>First, click on the "content" folder to expand it and see the content files inside.</p>
-      <p>The content folder contains the text and pages for your website.</p>
+      <p>Great! You're already looking at your homepage content file (index.md).</p>
+      <p>This file controls what visitors see when they first visit your website.</p>
+      <p>It's written in Markdown - a simple way to format text that's easy to learn.</p>
     `,
     attachTo: {
-      element: '.sidebar',
-      on: 'right'
+      element: '#editor',
+      on: 'left'
     },
     beforeShowPromise: function() {
       return new Promise(function(resolve) {
-        // Find and highlight the content folder header
-        const folderHeaders = document.querySelectorAll('.folder-header');
-        let contentFolder = null;
-
-        folderHeaders.forEach(header => {
-          const text = header.textContent.trim();
-          if (text === '▶📁content' || text === '▼📂content') {
-            contentFolder = header;
-          }
-        });
-
-        if (contentFolder) {
-          contentFolder.style.background = 'var(--pico-primary-background)';
-          contentFolder.style.color = 'var(--pico-primary-inverse)';
+        // Highlight the index.md file in the sidebar
+        const indexFile = document.querySelector('[data-filename="index.md"]');
+        if (indexFile) {
+          indexFile.style.background = 'var(--pico-primary-background)';
+          indexFile.style.color = 'var(--pico-primary-inverse)';
           setTimeout(() => {
-            contentFolder.style.background = '';
-            contentFolder.style.color = '';
+            indexFile.style.background = '';
+            indexFile.style.color = '';
           }, 3000);
         }
         resolve();
@@ -617,39 +650,31 @@ function initializeTour() {
         classes: 'shepherd-button-secondary'
       },
       {
-        text: 'Skip',
+        text: 'Continue',
         action: tour.next,
         classes: 'shepherd-button-primary'
       }
     ]
   });
 
-  // Step 5: Open a content file
+  // Step 5: Markdown basics
   tour.addStep({
-    id: 'open-hello-file',
-    title: 'Open a Content File',
+    id: 'markdown-basics',
+    title: 'Markdown Basics',
     text: `
-      <p>Now click on "about.md" inside the content folder to open your first content file.</p>
-      <p>This file contains sample content that you can edit.</p>
+      <p>In Markdown, you can easily format text:</p>
+      <ul>
+        <li><code># Heading</code> creates a large heading</li>
+        <li><code>## Smaller Heading</code> creates a smaller heading</li>
+        <li><code>[Link Text](page.md)</code> creates clickable links</li>
+        <li><code>**bold text**</code> makes text bold</li>
+        <li><code>*italic text*</code> makes text italic</li>
+      </ul>
+      <p>Try editing the content in the editor to personalize your homepage!</p>
     `,
     attachTo: {
-      element: '.sidebar',
-      on: 'right'
-    },
-    beforeShowPromise: function() {
-      return new Promise(function(resolve) {
-        // Highlight the about.md file if it exists
-        const helloFile = document.querySelector('[data-filename="content/about.md"]');
-        if (helloFile) {
-          helloFile.style.background = 'var(--pico-primary-background)';
-          helloFile.style.color = 'var(--pico-primary-inverse)';
-          setTimeout(() => {
-            helloFile.style.background = '';
-            helloFile.style.color = '';
-          }, 3000);
-        }
-        resolve();
-      });
+      element: '#editor',
+      on: 'left'
     },
     buttons: [
       {
@@ -658,7 +683,7 @@ function initializeTour() {
         classes: 'shepherd-button-secondary'
       },
       {
-        text: 'Skip',
+        text: 'Try It',
         action: tour.next,
         classes: 'shepherd-button-primary'
       }
@@ -668,8 +693,12 @@ function initializeTour() {
   // Step 6: Edit content
   tour.addStep({
     id: 'edit-content',
-    title: 'Edit Content',
-    text: `<p>Try editing the content!</p>`,
+    title: 'Edit Your Homepage',
+    text: `
+      <p>Now try editing your homepage content!</p>
+      <p>Change the title, add your own description, or modify the existing content.</p>
+      <p>Your changes will appear instantly when you preview your site.</p>
+    `,
     attachTo: {
       element: '#editor',
       on: 'bottom-end'
@@ -746,12 +775,39 @@ function initializeTour() {
     ]
   });
 
-  // Step 9: Preview your site
+  // Step 9: Other pages
+  tour.addStep({
+    title: 'Adding More Pages',
+    text: `
+      <p>Want to add more pages to your site?</p>
+      <p>You can click on files like "content/about.md" in the sidebar to edit other pages.</p>
+      <p>You can also create new files using the "+ New File" button.</p>
+    `,
+    attachTo: {
+      element: '.sidebar',
+      on: 'right'
+    },
+    buttons: [
+      {
+        text: 'Back',
+        action: tour.back,
+        classes: 'shepherd-button-secondary'
+      },
+      {
+        text: 'Continue',
+        action: tour.next,
+        classes: 'shepherd-button-primary'
+      }
+    ]
+  });
+
+  // Step 10: Preview your site
   tour.addStep({
     title: 'Preview Your Site',
     text: `
       <p>Want to see how your site looks? Click "Preview" to open your site in a new tab.</p>
       <p>This generates a live version of your site that you can view and test.</p>
+      <p>Your homepage changes will be visible immediately!</p>
     `,
     attachTo: {
       element: '#preview',
@@ -771,7 +827,7 @@ function initializeTour() {
     ]
   });
 
-  // Step 10: Publishing options
+  // Step 11: Publishing options
   tour.addStep({
     title: 'Publishing Your Site',
     text: `
@@ -834,21 +890,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentStep = tourInstance.getCurrentStep();
     if (!currentStep) return;
 
-    // Step 4: Detect content folder click
-    if (currentStep.id === 'open-content-folder') {
-      const target = e.target.closest('.folder-header');
-      if (target && target.textContent.includes('content')) {
-        setTimeout(() => tourInstance.next(), 500); // Small delay for folder to expand
-      }
-    }
-
-    // Step 5: Detect hello.md file click
-    if (currentStep.id === 'open-hello-file') {
-      const target = e.target.closest('[data-filename="content/about.md"]');
-      if (target) {
-        setTimeout(() => tourInstance.next(), 500); // Small delay for file to load
-      }
-    }
+    // No specific click detection needed since we start with index.md already loaded
+    // The tour now focuses on the content editing experience rather than navigation
   });
 
   // Set up editor change detection for tour

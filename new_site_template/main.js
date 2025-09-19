@@ -26,7 +26,7 @@ function init() {
   if (path) {
     replaceContent(path, false);
   } else {
-    replaceLinks();
+    loadIndexContent();
   }
 
   // If the user navigates back or forward, we want to replace the content
@@ -35,6 +35,27 @@ function init() {
   };
 
 };
+
+function loadIndexContent() {
+  fetch('index.md')
+    .then((response) => response.text())
+    .then((text) => {
+      const main = document.querySelector('main');
+      const content = marked.parse(text);
+      main.innerHTML = content;
+
+      evalScripts(main);
+      replaceLinks();
+    })
+    .catch((error) => {
+      console.error('Error loading index.md:', error);
+      // Fallback content if index.md is not found
+      const main = document.querySelector('main');
+      main.innerHTML = '<h1>Welcome!</h1><p>Create an index.md file to customize this page.</p>';
+      replaceLinks();
+    });
+}
+
 function replaceLinks() {
   document.querySelectorAll('a').forEach(function (link) {
     // We look first for the data-original-url attribute, if it's not present we look for the href attribute
