@@ -40,20 +40,11 @@ function loadIndexContent() {
   // Handle blob URLs the same way as replaceContent()
   if (window.location.href.startsWith('blob:') && localStorage.getItem('siteMap') !== null) {
     var siteMap = new Map(JSON.parse(localStorage.getItem('siteMap')));
-    var url = siteMap.get('/index.md');
-    console.log('Blob context: using siteMap URL:', url);
+    var fileName = 'index.md';
+    var rootUrl = fileName.startsWith('/') ? fileName : '/' + fileName;
+    var url = siteMap.get(rootUrl);
   } else {
     var url = 'index.md';
-    console.log('Non-blob context: using relative URL:', url);
-  }
-
-  if (!url) {
-    console.error('No URL resolved for index.md');
-    // Fallback to showing static content
-    const main = document.querySelector('main');
-    main.innerHTML = '<h1>Welcome!</h1><p>Create an index.md file to customize this page.</p>';
-    replaceLinks();
-    return;
   }
 
   fetch(url)
