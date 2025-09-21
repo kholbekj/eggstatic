@@ -551,9 +551,9 @@ function initializeTour() {
 
   // Step 1: Welcome
   tour.addStep({
-    title: 'Welcome to Eggstatic Editor',
+    title: 'Welcome to Quill Editor',
     text: `
-      <p>Welcome to the Eggstatic Editor! This is your website editor that runs entirely in your browser.</p>
+      <p>Welcome to Quill Editor! This is your website editor that runs entirely in your browser.</p>
       <p>We'll skip the complicated setup and get you started making your site right away.</p>
     `,
     buttons: [
@@ -864,7 +864,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let tourInstance = null;
 
   // Auto-start tour for new users only
-  if (!localStorage.getItem('eggstatic-tour-completed')) {
+  if (!localStorage.getItem('parchment-tour-completed')) {
     // Wait a bit for the page to fully load
     setTimeout(() => {
       tourInstance = tour;
@@ -874,12 +874,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Mark tour as completed when it finishes or is cancelled
   tour.on('complete', function() {
-    localStorage.setItem('eggstatic-tour-completed', 'true');
+    localStorage.setItem('parchment-tour-completed', 'true');
     tourInstance = null;
   });
 
   tour.on('cancel', function() {
-    localStorage.setItem('eggstatic-tour-completed', 'true');
+    localStorage.setItem('parchment-tour-completed', 'true');
     tourInstance = null;
   });
 

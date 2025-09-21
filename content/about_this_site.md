@@ -1,11 +1,11 @@
 # About this site
-This site was made with the minimalistic Eggstatic template. 
+This site was made with the minimalistic Parchment template. 
 
 Static sites generally come in two flavors:
 - Written as HTML, and served
 - Written as templates, and built by a generator (such as jekyll, hugo, gatsby)
 
-Eggstatic takes a middleway - you author content in markdown, but serve a single html file which does the parsing of markdown into html on the fly. 
+Parchment takes a middleway - you author content in markdown, but serve a single html file which does the parsing of markdown into html on the fly. 
 
 ## Tradeoffs
 
